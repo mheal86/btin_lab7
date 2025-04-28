@@ -1,52 +1,61 @@
 <?php
-require_once "db_module.php";
-
+require_once("db_module.php");
 $link = NULL;
 taoKetNoi($link);
 
-// G) Thêm mới một bản tin vào danh mục "Công nghệ"
-$sql_insert = "
-    INSERT INTO tbl_bantin (
-        id_danhmuc,
-        id_bantin,
-        tieude,
-        hinhanh,
-        noidung,
-        tukhoa,
-        nguontin
-    )
-    VALUES (
-        (SELECT id_danhmuc FROM tbl_danhmuc WHERE ten_danhmuc = N'Công nghệ' LIMIT 1),
-        123,
-        N'Liệu Samsung sẽ thành công với Galaxy S4 hay sẽ rơi vào tình trạng suy giảm sự tin cậy của nhà đầu tư như Apple',
-        'images/news/m4chip.jpg',
-        N'[Câu g] Bản tin thuộc danh mục công nghệ',
-        N'Apple, đầu tư, công nghệ',
-        N'VnExpress'
-    )
-";
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $id_bantin = $_POST['id_bantin'];
+    $tieude = $_POST['tieude'];
+    $hinhanh = $_POST['hinhanh'];
+    $noidung = $_POST['noidung'];
+    $tukhoa = $_POST['tukhoa'];
+    $nguontin = $_POST['nguontin'];
 
-$result_insert = chayTruyVanKhongTraVeDL($link, $sql_insert);
-if ($result_insert) {
-    echo "Thêm bản tin thành công.<br><br>";
-} else {
-    echo "Lỗi khi thêm bản tin.<br><br>";
+    // Build query dựa trên input
+    $query = "INSERT INTO tbl_bantin (id_danhmuc, id_bantin, tieude, hinhanh, noidung, tukhoa, nguontin)
+              VALUES (
+                  (SELECT id_danhmuc FROM tbl_danhmuc WHERE ten_danhmuc = N'Công nghệ' LIMIT 1),
+                  '$id_bantin',
+                  N'$tieude',
+                  '$hinhanh',
+                  N'$noidung',
+                  N'$tukhoa',
+                  '$nguontin'
+              )";
+
+    $result = chayTruyVanKhongTraVeDL($link, $query);
+
+    if ($result) {
+        echo "<h3>Thêm bản tin thành công!</h3>";
+    } else {
+        echo "<h3>Thêm bản tin thất bại!</h3>";
+    }
+
+    // Hiển thị kết quả
+    $select = "SELECT b.id_bantin, b.tieude, d.ten_danhmuc
+               FROM tbl_bantin b
+               JOIN tbl_danhmuc d ON b.id_danhmuc = d.id_danhmuc
+               WHERE d.ten_danhmuc = 'Công nghệ'";
+    $rs = chayTruyVanTraVeDL($link, $select);
+
+    echo "<h3>Dữ liệu hiện tại:</h3><table border='1'>";
+    while($row = mysqli_fetch_assoc($rs)) {
+        echo "<tr><td>{$row['id_bantin']}</td><td>{$row['tieude']}</td><td>{$row['ten_danhmuc']}</td></tr>";
+    }
+    echo "</table>";
+
+    giaiPhongBoNho($link, $rs);
+    exit;
 }
-
-// Hiển thị bản tin vừa thêm
-$sql_select = "
-    SELECT tbl_bantin.id_bantin, tbl_bantin.tieude, tbl_danhmuc.ten_danhmuc
-    FROM tbl_bantin
-    JOIN tbl_danhmuc ON tbl_bantin.id_danhmuc = tbl_danhmuc.id_danhmuc
-    WHERE tbl_danhmuc.ten_danhmuc = 'Công nghệ'
-";
-
-$result_select = chayTruyVanTraVeDL($link, $sql_select);
-while ($row = mysqli_fetch_assoc($result_select)) {
-    echo "ID Bản Tin: " . $row['id_bantin'] . "<br>";
-    echo "Tiêu Đề: " . $row['tieude'] . "<br>";
-    echo "Tên Danh Mục: " . $row['ten_danhmuc'] . "<br><br>";
-}
-
-giaiPhongBoNho($link, $result_select);
 ?>
+
+<h2>Thêm bản tin mới vào Công nghệ</h2>
+<form method="post">
+    ID Bản Tin: <input type="text" name="id_bantin" required><br><br>
+    Tiêu đề: <input type="text" name="tieude" required><br><br>
+    Hình ảnh: <input type="text" name="hinhanh"><br><br>
+    Nội dung: <textarea name="noidung" rows="5" cols="50" required></textarea><br><br>
+    Từ khóa: <input type="text" name="tukhoa"><br><br>
+    Nguồn tin: <input type="text" name="nguontin"><br><br>
+    <button type="submit">Thêm bản tin</button>
+</form>
