@@ -8,7 +8,7 @@ taoKetNoi($link); // Kết nối cơ sở dữ liệu
 $sql_top10_bantin = "
     SELECT *
     FROM tbl_bantin
-    ORDER BY luot_thich DESC
+    ORDER BY 'like' DESC
     LIMIT 10
 ";
 
@@ -18,7 +18,7 @@ $result_top10_bantin = chayTruyVanTraVeDL($link, $sql_top10_bantin);
 while ($row = mysqli_fetch_assoc($result_top10_bantin)) {
     echo "ID Bản Tin: " . $row['id_bantin'] . "<br>";
     echo "Tiêu Đề: " . $row['tieude'] . "<br>";
-    echo "Lượt Thích: " . $row['luot_thich'] . "<br><br>";
+    echo "like: " . $row['like'] . "<br><br>";
 }
 
 giaiPhongBoNho($link, $result_top10_bantin); // Giải phóng bộ nhớ

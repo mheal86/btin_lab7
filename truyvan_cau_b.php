@@ -8,7 +8,7 @@ taoKetNoi($link); // Kết nối cơ sở dữ liệu
 $sql_find_bantin = "
     SELECT *
     FROM tbl_bantin
-    WHERE tieude LIKE N'%công nghệ%'
+    WHERE tieude LIKE N'%Samsung%'
 ";
 
 $result_find_bantin = chayTruyVanTraVeDL($link, $sql_find_bantin);
